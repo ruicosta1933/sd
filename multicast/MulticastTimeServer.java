@@ -2,7 +2,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,11 +26,14 @@ public class MulticastTimeServer {
 
     private static void startServer() throws IOException {
         InetAddress group = InetAddress.getByName(MULTICAST_GROUP);
+        //network interface variable
+        NetworkInterface networkInterface = NetworkInterface.getByName("en0");
 
         // Thread para lidar com os pedidos dos clientes
         Thread serverThread = new Thread(() -> {
             try (MulticastSocket socket = new MulticastSocket(MULTICAST_PORT)) {
-                socket.joinGroup(group);
+                // Associa o socket ao grupo e à interface de rede
+                socket.joinGroup(new InetSocketAddress(group, MULTICAST_PORT), networkInterface);
 
                 // Mapa para armazenar o tempo de envio de cada datagrama
                 Map<Integer, Long> sendTimes = new HashMap<>();
